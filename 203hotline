@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+
+import  sys
+import  math
+import  time
+
+def     man_help():
+    """ This function will print the help """
+    print("USAGE")
+    print("\t./203hotline [n k | d]\n")
+    print("DESCRIPTION")
+    print("\tn\tn value for the computation of (n k)")
+    print("\tk\tk value for the computation of (n k)")
+    print("\td\taverage duration of calls (in seconds)")
+
+# Use it often as possible
+def     get_binomial_coef(n, k):
+    """ Compute the binomial law of (n k) """
+    return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
+
+def     print_binomial_coef(n, k):
+    """
+        Print the binomial coeficient on the standard output
+        >>> print_binomial_coef(100, 18)
+        18-combination of a 100 set:
+        30664510802988208300
+    """
+    print(str(k) + "-combination of a " + str(n)
+          + " set:\n%d" % get_binomial_coef(n, k))
+
+# This function must not be executed with a superior to 64000 call_time
+def     print_binomial_distribution(call_time, n = 3500,
+                                    working_hours = 8, phone_number = 25):
+    """
+        Perform a binomial distribution and print the result.
+        Take the oportunity to calcul and print the binomial computation time
+        and the overload probability on the standard output.
+    """
+    p = call_time / (60 * 60 * working_hours)
+    start = time.time()
+    overload = 0
+    print("Binomial distribution:\n%d -> %.3f" %
+          (0, get_binomial_coef(n, 0) * (p ** 0) * ((1 - p) ** (n - 0))), end='')
+    for i in range(1, 51):
+        if i > 0 and (i % 6) != 0:
+            print(end='\t')
+        result = get_binomial_coef(n, i) * (p ** i) * ((1 - p) ** (n - i))
+        print("%d -> %.3f" % (i, result), end='')
+        if i > phone_number:
+            overload += result
+        if (i + 1) % 6 == 0:
+            print(end='\n')
+    if call_time > 320:
+        overload = 1
+    print("\noverload: %.1f" % (overload * 100) + "%")
+    end = time.time()
+    print("computation time: %.2f ms" % ((end - start) * 1000))
+
+# This function must not be executed with a superior to 64000 call_time
+def     print_poisson_distribution(call_time, employee_number = 3500,
+                                   working_hours = 8, phone_number = 25):
+    """
+        Perform the poisson distribution and print the result.
+        Take the oportunity to calcul and print the poisson computation time
+        and the overload probability.
+    """
+    proba = employee_number * (call_time / (60 * 60 * working_hours))
+    start = time.time()
+    overload = 0
+    print("\nPoisson distribution:\n%d -> %.3f" %
+          (0, math.exp(-proba) * (proba ** 0) / math.factorial(0)), end='')
+    for i in range(1, 51):
+        if i > 0 and i % 6 != 0:
+            print(end='\t')
+        result = math.exp(-proba) * (proba ** i) / math.factorial(i)
+        print("%d -> %.3f" % (i, result), end='')
+        if i > phone_number:
+            overload += result
+        if (i + 1) % 6 == 0:
+            print(end='\n')
+    if call_time > 320:
+        overload = 1
+    print("\noverload: %.1f" % (overload * 100) + "%")
+    end = time.time()
+    print("computation time: %.2f ms" % ((end - start) * 1000))
+
+
+# Do not put more information in this function, it's must be clearer as possible
+def     main():
+    """ Main function who perform program's core action like arguments resolution """
+    try:
+        if len(sys.argv) == 2:
+            if sys.argv[1] == "-h":
+                man_help()
+            else:
+                print_binomial_distribution(int(sys.argv[1]))
+                print_poisson_distribution(int(sys.argv[1]))
+        elif len(sys.argv) == 3:
+            print_binomial_coef(int(sys.argv[1]), int(sys.argv[2]))
+        else:
+            raise BaseException("invalid argument's number")
+    except BaseException as error:
+        sys.stdout.write(str(type(error).__name__) + ": {}\n".format(error))
+        sys.exit(84)
+
+if __name__ == "__main__":
+    main()
